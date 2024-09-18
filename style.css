@@ -71,10 +71,10 @@ header {
   flex-grow: 1;
   text-align: right;
 }
-
+/* 
 .dark-theme #logo img {
-  filter: brightness(0) invert(1);
-}
+  filter: brightness(50) invert(0);
+} */
 
 .main-nav ul,
 .side-nav ul {

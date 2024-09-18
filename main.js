@@ -13,6 +13,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 let theme = 'light';
 let bookCover = null;
 let lightSwitch = null;
+let bookPage = null;
 let titleText = null;
 let subtitleText = null;
 let mixer;
@@ -184,6 +185,7 @@ gltfLoader.load(
 
       if (child.name === 'Book') {
         bookCover = child.children[0];
+        bookPage = bookCover.clone();
 
         // adding texture to book
         const bookTexture = new THREE.TextureLoader().load(
@@ -194,6 +196,12 @@ gltfLoader.load(
           color: 0xffffff,
           map: bookTexture,
         });
+
+        bookPage.material = new THREE.MeshStandardMaterial({
+          color: 0x0055ff,
+          opacity: 0,
+          transparent: true,
+        })
       }
 
       if (child.name === 'SwitchBoard') {
@@ -317,7 +325,7 @@ function loadIntroText() {
       new THREE.MeshPhongMaterial({ color: 0x171f27, flatShading: true }),
       new THREE.MeshPhongMaterial({ color: 0xffffff }),
     ];
-    const titleGeo = new TextGeometry('SUSHIL THAPA', {
+    const titleGeo = new TextGeometry('Bordei Matei', {
       font: font,
       size: 0.08,
       height: 0.01,
@@ -334,7 +342,7 @@ function loadIntroText() {
       new THREE.MeshPhongMaterial({ color: 0xffffff }),
     ];
     const subTitleGeo = new TextGeometry(
-      'Web Designer / Developer / Content Creator',
+      'Game Developer / Engineer / Music Producer',
       {
         font: font,
         size: 0.018,
@@ -504,10 +512,16 @@ function disableCloseBtn() {
 
 function resetBookCover() {
   if (!bookCover) return;
+  
 
   gsap.to(bookCover.rotation, {
     x: 0,
     duration: 1.5,
+  });
+
+  gsap.to(bookPage.opacity, {
+    opacity: 100,
+    duration: 0.4,
   });
 }
 
