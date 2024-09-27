@@ -653,27 +653,32 @@ function projectsMenuListener() {
       e.preventDefault();
       disableOrbitControls();
       resetBookCover();
+      gsap.to(camera.position, {
+        ...projectsCameraPos,
+        duration: 1.5,
+      });
+      gsap.to(camera.rotation, {
+        ...projectsCameraRot,
+        duration: 1.5,
+      });
       gsap.delayedCall(1.5, enableCloseBtn);
 
+      // animate & show project items
       projects.forEach((project, i) => {
+        project.mesh.scale.set(1, 1, 1);
         gsap.to(project.mesh.material, {
           opacity: 1,
-          duration: 1,
+          duration: 1.5,
+          delay: 1.5 + i * 0.1,
         });
         gsap.to(project.mesh.position, {
-          y: project.y + 0.3,
+          y: project.y + 0.05,
           duration: 1,
-        });
-        gsap.to(project.mesh.scale, {
-          x: 1,
-          y: 1,
-          z: 1,
-          duration: 0.5,
+          delay: 1.5 + i * 0.1,
         });
       });
     });
 }
-
 
 function init3DWorldClickListeners() {
   const mousePosition = new THREE.Vector2();
