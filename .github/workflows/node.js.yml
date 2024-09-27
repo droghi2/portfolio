@@ -26,12 +26,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
     - run: npm ci
     - run: npm run build --if-present
 
-    - name: Deploy to GitHub Pages
+    - name: Set Git User
       run: |
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-        npm run deploy --if-present
+        git config user.name "droghi2"
+        git config user.email "themaftei@gmail.com"
+
+    - name: Deploy to GitHub Pages
+      run: npm run deploy --if-present
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
