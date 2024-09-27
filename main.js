@@ -33,7 +33,7 @@ let projects = [
     url: 'https://www.spaze.social/',
   },
   {
-    image: 'CaveWithLake.png',
+    image: 'WholeSnow.png',
     url: 'https://myteachers.com.au/',
   },
   {
