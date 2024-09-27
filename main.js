@@ -37,7 +37,7 @@ let projects = [
     url: 'https://myteachers.com.au/',
   },
   {
-    image: 'textures/FoggiMainArea.png',
+    image: 'textures/CaveWithLake.png',
     url: 'https://wholesale.com.np/',
   },
   {
