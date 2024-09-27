@@ -44,10 +44,10 @@ let projects = [
     image: 'textures/CaveEntrance.png',
     url: 'https://wholesale.com.np/',
   },
-  // {
-  //   image: 'textures/project-myteachers.jpg',
-  //   url: 'https://wholesale.com.np/',
-  // },
+  {
+    image: 'textures/project-myteachers.jpg',
+    url: 'https://wholesale.com.np/',
+  },
 ];
 let aboutCameraPos = {
   x: 0.12,
@@ -619,33 +619,45 @@ function aboutMenuListener() {
 }
 
 function projectsMenuListener() {
-  // create project planes with textures
+  // ... existing code ...
+
   projects.forEach((project, i) => {
     const colIndex = i % 3 === 0 ? 0 : 1;
     const rowIndex = Math.floor(i / 3);
-    const geometry = new THREE.PlaneGeometry(0.71, 0.4);
+    const geometry = new THREE.PlaneGeometry(0.71, 0.4); // Adjust dimensions if needed
+
     const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
       map: new THREE.TextureLoader().load(project.image),
-      transparent: true,
-      opacity: 0.0,
+      transparent: true, // Make the material transparent
     });
-    const projectPlane = new THREE.Mesh(geometry, material);
-    projectPlane.name = 'project';
-    projectPlane.userData = {
-      url: project.url,
-    };
-    projectPlane.position.set(
-      0.3 + i * 0.8 * colIndex,
-      1 - rowIndex * 0.5,
-      -1.15
+
+    const projectMesh = new THREE.Mesh(geometry, material);
+    projectMesh.position.set(
+      -0.8 + colIndex * 1.6,
+      0.2 - rowIndex * 0.5,
+      0.001 // Position slightly in front of the screen
     );
-    projectPlane.scale.set(0, 0, 0);
-    // mesh & y vars needed for animation
-    projects[i].mesh = projectPlane;
-    projects[i].y = 1 - rowIndex * 0.5;
-    scene.add(projectPlane);
+    projectMesh.scale.set(0, 0, 0); // Initially hidden
+    projectMesh.userData.url = project.url; // Store URL in userData
+    projectMesh.userData.index = i; // Store index for reference
+
+    // Add click event listener to open project in new tab
+    projectMesh.addEventListener('click', function () {
+      window.open(this.userData.url, '_blank');
+    });
+
+    scene.add(projectMesh);
+
+    // Animation for project meshes
+    gsap.to(projectMesh.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 1,
+      delay: i * 0.2, // Delay animation for each project
+    });
   });
+
 
   document
     .getElementById('projects-menu')
