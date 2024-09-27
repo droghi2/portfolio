@@ -29,11 +29,11 @@ let clipNames = [
 ];
 let projects = [
   {
-    image: 'textures/project-spaze.webp',
+    image: 'textures/FoggiMainArea.png',
     url: 'https://www.spaze.social/',
   },
   {
-    image: 'WholeSnow.png',
+    image: 'textures/WholeSnow.png',
     url: 'https://myteachers.com.au/',
   },
   {
@@ -42,6 +42,10 @@ let projects = [
   },
   {
     image: 'textures/CaveEntrance.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/CaveWithLake.png',
     url: 'https://wholesale.com.np/',
   },
 ];
