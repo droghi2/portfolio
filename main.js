@@ -40,6 +40,10 @@ let projects = [
     image: 'textures/project-wholesale.jpg',
     url: 'https://wholesale.com.np/',
   },
+  {
+    image: 'textures/CaveEntrance.png',
+    url: 'https://wholesale.com.np/',
+  },
 ];
 let aboutCameraPos = {
   x: 0.12,
