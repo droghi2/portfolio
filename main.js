@@ -625,8 +625,8 @@ function aboutMenuListener() {
 function projectsMenuListener() {
   // create project planes with textures
   projects.forEach((project, i) => {
-    const colIndex = i % 3;  // 3 columns: colIndex will be 0, 1, or 2
-    const rowIndex = Math.floor(i / 3);  // New row every 3 projects
+    const colIndex = i % 3 === 0 ? 0 : 1;
+    const rowIndex = Math.floor(i / 3);
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
