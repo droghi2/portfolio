@@ -44,6 +44,14 @@ let projects = [
     image: 'textures/project-pelotero.jpg',
     url: 'https://www.peloterosenlaweb.com/',
   },
+  {
+    image: 'textures/project-pelotero.jpg',
+    url: 'https://www.peloterosenlaweb.com/',
+  },
+  {
+    image: 'textures/project-pelotero.jpg',
+    url: 'https://www.peloterosenlaweb.com/',
+  },
 ];
 let aboutCameraPos = {
   x: 0.12,
