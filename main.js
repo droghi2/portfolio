@@ -45,11 +45,11 @@ let projects = [
     url: 'https://wholesale.com.np/',
   },
   {
-    image: 'textures/CaveWithLake.png',
+    image: 'textures/project-myteachers.jpg',
     url: 'https://wholesale.com.np/',
   },
   {
-    image: 'textures/CaveWithLake.png',
+    image: 'textures/project-pelotero.jpg',
     url: 'https://wholesale.com.np/',
   },
 ];
