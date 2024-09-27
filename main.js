@@ -40,8 +40,8 @@ let projects = [
     image: 'textures/project-wholesale.jpg',
     url: 'https://wholesale.com.np/',
   },
-  {
-    image: 'textures/CaveEntrance.png',
+    {
+    image: 'textures/project-wholesale.jpg',
     url: 'https://wholesale.com.np/',
   },
 ];
