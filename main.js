@@ -619,7 +619,6 @@ function aboutMenuListener() {
 }
 
 function projectsMenuListener() {
-  // create project planes with textures
   projects.forEach((project, i) => {
     const colIndex = i % 3 === 0 ? 0 : 1;
     const rowIndex = Math.floor(i / 3);
@@ -641,11 +640,12 @@ function projectsMenuListener() {
       -1.15
     );
     projectPlane.scale.set(0, 0, 0);
-    // mesh & y vars needed for animation
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
   });
+}
+
 
   document
     .getElementById('projects-menu')
