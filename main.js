@@ -41,7 +41,7 @@ let projects = [
     url: 'https://wholesale.com.np/',
   },
     {
-    image: 'textures/project-wholesale.jpg',
+    image: 'textures/CaveEntrance.png',
     url: 'https://wholesale.com.np/',
   },
 ];
