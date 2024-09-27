@@ -44,14 +44,10 @@ let projects = [
     image: 'textures/CaveEntrance.png',
     url: 'https://wholesale.com.np/',
   },
-  {
-    image: 'textures/project-myteachers.jpg',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/project-pelotero.jpg',
-    url: 'https://wholesale.com.np/',
-  },
+  // {
+  //   image: 'textures/project-myteachers.jpg',
+  //   url: 'https://wholesale.com.np/',
+  // },
 ];
 let aboutCameraPos = {
   x: 0.12,
