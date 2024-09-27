@@ -619,33 +619,37 @@ function aboutMenuListener() {
 }
 
 function projectsMenuListener() {
-  // create project planes with textures
   projects.forEach((project, i) => {
-    const colIndex = i % 3 === 0 ? 0 : 1;
-    const rowIndex = Math.floor(i / 3);
-    const geometry = new THREE.PlaneGeometry(0.71, 0.4);
+    // Create a plane geometry for each project
+    const geometry = new THREE.PlaneGeometry(0.7, 0.4);
     const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
       map: new THREE.TextureLoader().load(project.image),
       transparent: true,
       opacity: 0.0,
     });
+
+    // Create a mesh for the project
     const projectPlane = new THREE.Mesh(geometry, material);
-    projectPlane.name = 'project';
-    projectPlane.userData = {
-      url: project.url,
-    };
-    projectPlane.position.set(
-      0.3 + i * 0.8 * colIndex,
-      1 - rowIndex * 0.5,
-      -1.15
-    );
+    projectPlane.userData = { url: project.url };
+
+    // Set position (ensure the positioning is even)
+    const xPos = (i % 3) * 1 - 1.5;  // Adjust horizontal spacing
+    const yPos = Math.floor(i / 3) * -0.5 + 1;  // Adjust vertical spacing
+    projectPlane.position.set(xPos, yPos, -1.15);
+
+    // Set initial scale and add the plane to the scene
     projectPlane.scale.set(0, 0, 0);
-    // mesh & y vars needed for animation
-    projects[i].mesh = projectPlane;
-    projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
+
+    // Animate the appearance
+    gsap.to(projectPlane.material, { opacity: 1, duration: 1 });
+    gsap.to(projectPlane.scale, { x: 1, y: 1, z: 1, duration: 1 });
+    
+    // Store mesh for further reference
+    projects[i].mesh = projectPlane;
   });
+
+
 
   document
     .getElementById('projects-menu')
