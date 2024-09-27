@@ -33,14 +33,14 @@ let projects = [
     url: 'https://www.spaze.social/',
   },
   {
-    image: 'textures/project-myteachers.jpg',
+    image: 'CaveWithLake.png',
     url: 'https://myteachers.com.au/',
   },
   {
-    image: 'textures/project-wholesale.jpg',
+    image: 'textures/FoggiMainArea.png',
     url: 'https://wholesale.com.np/',
   },
-    {
+  {
     image: 'textures/CaveEntrance.png',
     url: 'https://wholesale.com.np/',
   },
