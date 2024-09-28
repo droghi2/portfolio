@@ -650,6 +650,9 @@ function aboutMenuListener() {
   });
 }
 
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
 function projectsMenuListener() {
   projects.forEach((project, i) => {
     const colIndex = i % 3;
@@ -674,49 +677,44 @@ function projectsMenuListener() {
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
-
-    // Add event listener to open the album when clicked
-    projectPlane.userData = {
-      images: project.images,
-    };
-
-    projectPlane.onClick = function () {
-      showAlbum(projectPlane.userData.images);  // Open the album
-    };
   });
 
-  document.getElementById('projects-menu').addEventListener('click', function (e) {
-    e.preventDefault();
-    disableOrbitControls();
-    resetBookCover();
-    gsap.to(camera.position, {
-      ...projectsCameraPos,
-      duration: 1.5,
-    });
-    gsap.to(camera.rotation, {
-      ...projectsCameraRot,
-      duration: 1.5,
-    });
-    gsap.delayedCall(1.5, enableCloseBtn);
+  // Add an event listener for mouse clicks
+  window.addEventListener('click', onDocumentMouseClick, false);
+}
 
-    projects.forEach((project, i) => {
-      project.mesh.scale.set(1, 1, 1);
-      gsap.to(project.mesh.material, {
-        opacity: 1,
-        duration: 1.5,
-        delay: 1.5 + i * 0.1,
-      });
-      gsap.to(project.mesh.position, {
-        y: project.y + 0.05,
-        duration: 1,
-        delay: 1.5 + i * 0.1,
-      });
-    });
-  });
+// Function to handle mouse clicks
+function onDocumentMouseClick(event) {
+  // Convert the mouse position to normalized device coordinates (-1 to +1)
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Update the raycaster with the camera and mouse position
+  raycaster.setFromCamera(mouse, camera);
+
+  // Calculate objects intersecting with the ray
+  const intersects = raycaster.intersectObjects(scene.children);
+
+  if (intersects.length > 0) {
+    const intersectedObject = intersects[0].object;
+
+    // Check if the clicked object is a project
+    if (intersectedObject.name === 'project') {
+      // Show album of clicked project
+      showAlbum(intersectedObject.userData.images);
+    }
+  }
 }
 
 // Function to show the album when a project is clicked
 function showAlbum(images) {
+  // Remove any existing album container
+  const existingAlbum = document.getElementById('album-container');
+  if (existingAlbum) {
+    existingAlbum.remove();
+  }
+
+  // Create a new album container
   const albumContainer = document.createElement('div');
   albumContainer.id = 'album-container';
   albumContainer.style.position = 'absolute';
