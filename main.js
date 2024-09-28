@@ -683,8 +683,8 @@ function projectsMenuListener() {
         // Animate back in with Y-axis movement, scaling, and opacity
         gsap.to(project.mesh.material, {
           opacity: 1,
-          duration: 0.5,
-          delay: index * 0.1, // Add delay for consecutive appearance
+          duration: 1.5,
+          delay: 1.5 + i * 0.1, // Add delay for consecutive appearance
         });
         gsap.fromTo(
           project.mesh.scale,
