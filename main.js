@@ -40,10 +40,10 @@ let projects = [
     image: 'textures/CaveWithLake.png',
     url: 'https://wholesale.com.np/',
   },
-  // {
-  //   image: 'textures/CaveEntrance.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
+  {
+    image: 'textures/CaveEntrance.png',
+    url: 'https://wholesale.com.np/',
+  },
   {
     image: 'textures/project-myteachers.jpg',
     url: 'https://wholesale.com.np/',
@@ -621,8 +621,10 @@ function aboutMenuListener() {
 function projectsMenuListener() {
   // create project planes with textures
   projects.forEach((project, i) => {
-    const colIndex = i % 3 === 0 ? 0 : 1;
-    const rowIndex = Math.floor(i / 3);
+    // Update colIndex to support 2 columns
+    const colIndex = i % 2;  // 0 or 1, to alternate between two columns
+    const rowIndex = Math.floor(i / 2); // Every 2 items, start a new row
+
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
@@ -635,12 +637,15 @@ function projectsMenuListener() {
     projectPlane.userData = {
       url: project.url,
     };
+
+    // Adjust project positions to fit in two columns
     projectPlane.position.set(
-      0.3 + i * 0.8 * colIndex,
-      1 - rowIndex * 0.5,
+      0.3 + colIndex * 0.8, // Update for two columns
+      1 - rowIndex * 0.5, // Keep row spacing as before
       -1.15
     );
     projectPlane.scale.set(0, 0, 0);
+    
     // mesh & y vars needed for animation
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
@@ -679,6 +684,7 @@ function projectsMenuListener() {
       });
     });
 }
+
 
 function init3DWorldClickListeners() {
   const mousePosition = new THREE.Vector2();
