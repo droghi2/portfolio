@@ -28,21 +28,22 @@ let clipNames = [
   'fan_rotation.004',
 ];
 let projects = [
-  { 
-    images: ['textures/FoggiMainArea.png', 'textures/WholeMainArea.png', 'project1_image3.jpg'], 
-    title: 'Project 1' 
+  
+  {
+    image: 'textures/FoggiMainArea.png',
+    url: 'https://www.spaze.social/',
   },
-  { 
-    images: ['textures/SnowArea.png', 'textures/SnowTODesert.png', 'textures/WholeSnow.png'], 
-    title: 'Project 2' 
+  {
+    image: 'textures/WholeSnow.png',
+    url: 'https://myteachers.com.au/',
   },
-  { 
-    images: ['project3_image1.jpg', 'project3_image2.jpg', 'project3_image3.jpg'], 
-    title: 'Project 3' 
+  {
+    image: 'textures/CaveWithLake.png',
+    url: 'https://wholesale.com.np/',
   },
-  { 
-    images: ['project4_image1.jpg', 'project4_image2.jpg', 'project4_image3.jpg'], 
-    title: 'Project 4' 
+  {
+    image: 'textures/CaveEntrance.png',
+    url: 'https://wholesale.com.np/',
   },
   {
     image: 'textures/WholeMainArea.png',
@@ -60,38 +61,6 @@ let projects = [
     image: 'textures/SnowArea.png',
     url: 'https://wholesale.com',
   },
-  // {
-  //   image: 'textures/FoggiMainArea.png',
-  //   url: 'https://www.spaze.social/',
-  // },
-  // {
-  //   image: 'textures/WholeSnow.png',
-  //   url: 'https://myteachers.com.au/',
-  // },
-  // {
-  //   image: 'textures/CaveWithLake.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
-  // {
-  //   image: 'textures/CaveEntrance.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
-  // {
-  //   image: 'textures/WholeMainArea.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
-  // {
-  //   image: 'textures/CaveHole.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
-  // {
-  //   image: 'textures/SnowTODesert.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
-  // {
-  //   image: 'textures/SnowArea.png',
-  //   url: 'https://wholesale.com.np/',
-  // },
 ];
 let aboutCameraPos = {
   x: 0.12,
@@ -662,90 +631,72 @@ function aboutMenuListener() {
   });
 }
 
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-
 function projectsMenuListener() {
+  // create project planes with textures
   projects.forEach((project, i) => {
-    const colIndex = i % 3;
-    const rowIndex = Math.floor(i / 3);
+    // Update colIndex to support 3 columns
+    const colIndex = i % 3;  // 0, 1, or 2, to alternate between three columns
+    const rowIndex = Math.floor(i / 3); // Every 3 items, start a new row
 
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      map: new THREE.TextureLoader().load(project.images[0]), // Load the first image by default
+      map: new THREE.TextureLoader().load(project.image),
       transparent: true,
       opacity: 0.0,
     });
     const projectPlane = new THREE.Mesh(geometry, material);
     projectPlane.name = 'project';
     projectPlane.userData = {
-      images: project.images, // Store the album images
-      title: project.title,
+      url: project.url,
     };
 
-    projectPlane.position.set(0.3 + colIndex * 0.8, 1 - rowIndex * 0.5, -1.15);
+    // Adjust project positions to fit in three columns
+    projectPlane.position.set(
+      0.3 + colIndex * 0.8,  // Adjust for three columns
+      1 - rowIndex * 0.5,    // Keep row spacing as before
+      -1.15
+    );
     projectPlane.scale.set(0, 0, 0);
+    
+    // mesh & y vars needed for animation
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
   });
 
-  // Add an event listener for mouse clicks
-  window.addEventListener('click', onDocumentMouseClick, false);
+  document
+    .getElementById('projects-menu')
+    .addEventListener('click', function (e) {
+      e.preventDefault();
+      disableOrbitControls();
+      resetBookCover();
+      gsap.to(camera.position, {
+        ...projectsCameraPos,
+        duration: 1.5,
+      });
+      gsap.to(camera.rotation, {
+        ...projectsCameraRot,
+        duration: 1.5,
+      });
+      gsap.delayedCall(1.5, enableCloseBtn);
+
+      // animate & show project items
+      projects.forEach((project, i) => {
+        project.mesh.scale.set(1, 1, 1);
+        gsap.to(project.mesh.material, {
+          opacity: 1,
+          duration: 1.5,
+          delay: 1.5 + i * 0.1,
+        });
+        gsap.to(project.mesh.position, {
+          y: project.y + 0.05,
+          duration: 1,
+          delay: 1.5 + i * 0.1,
+        });
+      });
+    });
 }
-
-// Function to handle mouse clicks
-function onDocumentMouseClick(event) {
-  // Convert the mouse position to normalized device coordinates (-1 to +1)
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  // Update the raycaster with the camera and mouse position
-  raycaster.setFromCamera(mouse, camera);
-
-  // Calculate objects intersecting with the ray
-  const intersects = raycaster.intersectObjects(scene.children);
-
-  if (intersects.length > 0) {
-    const intersectedObject = intersects[0].object;
-
-    // Check if the clicked object is a project
-    if (intersectedObject.name === 'project') {
-      // Show album of clicked project
-      showAlbum(intersectedObject.userData.images);
-    }
-  }
-}
-
-// Function to show the album when a project is clicked
-function showAlbum(images) {
-  // Remove any existing album container
-  const existingAlbum = document.getElementById('album-container');
-  if (existingAlbum) {
-    existingAlbum.remove();
-  }
-
-  // Create a new album container
-  const albumContainer = document.createElement('div');
-  albumContainer.id = 'album-container';
-  albumContainer.style.position = 'absolute';
-  albumContainer.style.top = '50px';
-  albumContainer.style.left = '50px';
-  albumContainer.style.display = 'flex';
-  albumContainer.style.flexDirection = 'row';
-
-  images.forEach((image) => {
-    const img = document.createElement('img');
-    img.src = image;
-    img.style.width = '200px';
-    img.style.margin = '10px';
-    albumContainer.appendChild(img);
-  });
-
-  document.body.appendChild(albumContainer);
-}
-
 
 
 
