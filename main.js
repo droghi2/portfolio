@@ -770,6 +770,102 @@ function projectsMenuListener() {
 }
 
 
+let projectTitleText; // Variable to hold the title text mesh
+
+// Function to create project group titles
+function createProjectTitle(title) {
+  // Remove existing title text if it exists
+  if (projectTitleText) {
+    scene.remove(projectTitleText);
+  }
+
+  const loader = new FontLoader();
+  loader.load('fonts/unione.json', function (font) {
+    const textMaterials = [
+      new THREE.MeshPhongMaterial({ color: 0x171f27, flatShading: true }),
+      new THREE.MeshPhongMaterial({ color: 0xffffff }),
+    ];
+
+    // Create new title geometry and mesh
+    const titleGeo = new TextGeometry(title, {
+      font: font,
+      size: 0.08,
+      height: 0.01,
+    });
+
+    projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
+    projectTitleText.rotation.y = Math.PI * 0.5;
+    projectTitleText.position.set(1.1, 0.7, -1); // Position it above the second column
+    scene.add(projectTitleText);
+  });
+}
+
+// Call this function when the project menu is opened
+document.getElementById('projects-menu').addEventListener('click', function (e) {
+  e.preventDefault();
+  disableOrbitControls();
+  resetBookCover();
+
+  gsap.to(camera.position, {
+    ...projectsCameraPos,
+    duration: 1.5,
+  });
+  gsap.to(camera.rotation, {
+    ...projectsCameraRot,
+    duration: 1.5,
+  });
+
+  gsap.delayedCall(1.5, enableCloseBtn);
+
+  // Show project items
+  projects.forEach((project, i) => {
+    project.mesh.scale.set(1, 1, 1);
+    gsap.to(project.mesh.material, {
+      opacity: 1,
+      duration: 1.5,
+      delay: 1.5 + i * 0.1,
+    });
+    gsap.to(project.mesh.position, {
+      y: project.y + 0.05,
+      duration: 1,
+      delay: 1.5 + i * 0.1,
+    });
+  });
+
+  // Show initial title for the first group of projects
+  createProjectTitle(projects[0].title);
+});
+
+// Handle scrolling or touch events to update the title
+document.addEventListener('wheel', function (e) {
+  const direction = e.deltaY > 0 ? 1 : -1;
+
+  projects.forEach((project, i) => {
+    project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+    updateImageWithAnimation(project, i); // Update project images with animation
+  });
+
+  // Update title based on the new group of projects being displayed
+  const currentGroupIndex = Math.floor(projects[0].imageIndex / 3); // Adjust based on how you group projects
+  createProjectTitle(projects[currentGroupIndex].title);
+});
+
+// Mobile touch gesture handling
+document.addEventListener('touchend', function () {
+  const swipeDistance = touchEndX - touchStartX;
+  const direction = swipeDistance < 0 ? 1 : -1;
+
+  if (Math.abs(swipeDistance) > 30) {
+    projects.forEach((project, i) => {
+      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+      updateImageWithAnimation(project, i); // Update project images with animation
+    });
+
+    // Update the title for the current project group
+    const currentGroupIndex = Math.floor(projects[0].imageIndex / 3);
+    createProjectTitle(projects[currentGroupIndex].title);
+  }
+});
 
 
 function init3DWorldClickListeners() {
