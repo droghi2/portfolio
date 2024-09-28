@@ -28,39 +28,43 @@ let clipNames = [
   'fan_rotation.004',
 ];
 let projects = [
-  
-  {
-    image: 'textures/FoggiMainArea.png',
-    url: 'https://www.spaze.social/',
-  },
-  {
-    image: 'textures/WholeSnow.png',
-    url: 'https://myteachers.com.au/',
-  },
-  {
-    image: 'textures/CaveWithLake.png',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/CaveEntrance.png',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/WholeMainArea.png',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/CaveHole.png',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/SnowTODesert.png',
-    url: 'https://wholesale.com.np/',
-  },
-  {
-    image: 'textures/SnowArea.png',
-    url: 'https://wholesale.com',
-  },
+  { images: ['textures/FoggiMainArea.png', 'textures/WholeMainArea.png'], url: 'http://example.com/project1' },
+  { images: ['textures/WholeSnow.png', 'textures/SnowArea.png'], url: 'http://example.com/project2' },
+  { images: ['textures/CaveEntrance.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project3' },
+  { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
+  { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
+  // {
+  //   image: 'textures/FoggiMainArea.png',
+  //   url: 'https://www.spaze.social/',
+  // },
+  // {
+  //   image: 'textures/WholeSnow.png',
+  //   url: 'https://myteachers.com.au/',
+  // },
+  // {
+  //   image: 'textures/CaveWithLake.png',
+  //   url: 'https://wholesale.com.np/',
+  // },
+  // {
+  //   image: 'textures/CaveEntrance.png',
+  //   url: 'https://wholesale.com.np/',
+  // },
+  // {
+  //   image: 'textures/WholeMainArea.png',
+  //   url: 'https://wholesale.com.np/',
+  // },
+  // {
+  //   image: 'textures/CaveHole.png',
+  //   url: 'https://wholesale.com.np/',
+  // },
+  // {
+  //   image: 'textures/SnowTODesert.png',
+  //   url: 'https://wholesale.com.np/',
+  // },
+  // {
+  //   image: 'textures/SnowArea.png',
+  //   url: 'https://wholesale.com',
+  // },
 ];
 let aboutCameraPos = {
   x: 0.12,
@@ -631,17 +635,18 @@ function aboutMenuListener() {
   });
 }
 
+projects.forEach(project => project.imageIndex = 0);
+
 function projectsMenuListener() {
   // create project planes with textures
   projects.forEach((project, i) => {
-    // Update colIndex to support 3 columns
-    const colIndex = i % 3;  // 0, 1, or 2, to alternate between three columns
-    const rowIndex = Math.floor(i / 3); // Every 3 items, start a new row
+    const colIndex = i % 3;
+    const rowIndex = Math.floor(i / 3);
 
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      map: new THREE.TextureLoader().load(project.image),
+      map: new THREE.TextureLoader().load(project.images[project.imageIndex]), // Load first image
       transparent: true,
       opacity: 0.0,
     });
@@ -651,51 +656,64 @@ function projectsMenuListener() {
       url: project.url,
     };
 
-    // Adjust project positions to fit in three columns
     projectPlane.position.set(
-      0.3 + colIndex * 0.8,  // Adjust for three columns
-      1 - rowIndex * 0.5,    // Keep row spacing as before
+      0.3 + colIndex * 0.8,
+      1 - rowIndex * 0.5,
       -1.15
     );
     projectPlane.scale.set(0, 0, 0);
-    
-    // mesh & y vars needed for animation
+
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
   });
 
-  document
-    .getElementById('projects-menu')
-    .addEventListener('click', function (e) {
-      e.preventDefault();
-      disableOrbitControls();
-      resetBookCover();
-      gsap.to(camera.position, {
-        ...projectsCameraPos,
-        duration: 1.5,
-      });
-      gsap.to(camera.rotation, {
-        ...projectsCameraRot,
-        duration: 1.5,
-      });
-      gsap.delayedCall(1.5, enableCloseBtn);
+  // Scroll listener or buttons for cycling images
+  document.addEventListener('wheel', function (e) {
+    // Scroll direction (positive or negative)
+    const direction = e.deltaY > 0 ? 1 : -1;
 
-      // animate & show project items
-      projects.forEach((project, i) => {
-        project.mesh.scale.set(1, 1, 1);
-        gsap.to(project.mesh.material, {
-          opacity: 1,
-          duration: 1.5,
-          delay: 1.5 + i * 0.1,
-        });
-        gsap.to(project.mesh.position, {
-          y: project.y + 0.05,
-          duration: 1,
-          delay: 1.5 + i * 0.1,
-        });
+    projects.forEach((project, i) => {
+      // Update imageIndex based on scroll direction
+      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+
+      // Load the new image into the texture
+      const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
+      project.mesh.material.map = newTexture; // Update the texture
+      project.mesh.material.needsUpdate = true;
+    });
+  });
+
+  // The rest of the code remains the same for showing the project planes
+  document.getElementById('projects-menu').addEventListener('click', function (e) {
+    e.preventDefault();
+    disableOrbitControls();
+    resetBookCover();
+    gsap.to(camera.position, {
+      ...projectsCameraPos,
+      duration: 1.5,
+    });
+    gsap.to(camera.rotation, {
+      ...projectsCameraRot,
+      duration: 1.5,
+    });
+    gsap.delayedCall(1.5, enableCloseBtn);
+
+    // animate & show project items
+    projects.forEach((project, i) => {
+      project.mesh.scale.set(1, 1, 1);
+      gsap.to(project.mesh.material, {
+        opacity: 1,
+        duration: 1.5,
+        delay: 1.5 + i * 0.1,
+      });
+      gsap.to(project.mesh.position, {
+        y: project.y + 0.05,
+        duration: 1,
+        delay: 1.5 + i * 0.1,
       });
     });
+  });
 }
 
 
