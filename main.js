@@ -44,9 +44,21 @@ let projects = [
     images: ['project4_image1.jpg', 'project4_image2.jpg', 'project4_image3.jpg'], 
     title: 'Project 4' 
   },
-  { 
-    images: ['project5_image1.jpg', 'project5_image2.jpg', 'project5_image3.jpg'], 
-    title: 'Project 5' 
+  {
+    image: 'textures/WholeMainArea.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/CaveHole.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/SnowTODesert.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/SnowArea.png',
+    url: 'https://wholesale.com',
   },
   // {
   //   image: 'textures/FoggiMainArea.png',
