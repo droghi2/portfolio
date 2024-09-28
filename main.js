@@ -675,7 +675,7 @@ function projectsMenuListener() {
     // Animate the material opacity and Y-axis movement
     gsap.to(project.mesh.material, {
       opacity: 0,
-      duration: 0.5,
+      duration: 1.5,
       onComplete: () => {
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
@@ -684,7 +684,7 @@ function projectsMenuListener() {
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 1.5,
-          delay: index * 0.1, // Add delay for consecutive appearance
+          delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
         });
         gsap.fromTo(
           project.mesh.scale,
