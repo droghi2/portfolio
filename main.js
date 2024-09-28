@@ -668,24 +668,33 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
-  // Reusable animation function for the same animation you originally have
-  function animateProjectItem(project, i) {
-    gsap.to(project.mesh.scale, {
-      x: 1,
-      y: 1,
-      z: 1,
-      duration: 1.5,
-      delay: 1.5 + i * 0.1, // Consecutive delay
-    });
+  // Reusable animation function for updating the texture and animating
+  function updateImageWithAnimation(project, index) {
+    const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
+
+    // Animate the material opacity and Y-axis movement
     gsap.to(project.mesh.material, {
-      opacity: 1,
-      duration: 1.5,
-      delay: 1.5 + i * 0.1, // Same delay for opacity
+      opacity: 0,
+      duration: 0.5,
+      onComplete: () => {
+        project.mesh.material.map = newTexture;
+        project.mesh.material.needsUpdate = true;
+
+    // Animate & show project items
+    projects.forEach((project, i) => {
+      project.mesh.scale.set(1, 1, 1);
+      gsap.to(project.mesh.material, {
+        opacity: 1,
+        duration: 1.5,
+        delay: 1.5 + i * 0.1,
+      });
+      gsap.to(project.mesh.position, {
+        y: project.y + 0.05,
+        duration: 1,
+        delay: 1.5 + i * 0.1,
+      });
     });
-    gsap.to(project.mesh.position, {
-      y: project.y + 0.05,
-      duration: 1,
-      delay: 1.5 + i * 0.1, // Same delay for Y position
+      },
     });
   }
 
@@ -695,13 +704,7 @@ function projectsMenuListener() {
 
     projects.forEach((project, i) => {
       project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-
-      // Update the image texture
-      project.mesh.material.map = new THREE.TextureLoader().load(project.images[project.imageIndex]);
-      project.mesh.material.needsUpdate = true;
-
-      // Animate the project item using the same animation as the original
-      animateProjectItem(project, i);
+      updateImageWithAnimation(project, i); // Apply animation with index-based delay
     });
   });
 
@@ -711,32 +714,26 @@ function projectsMenuListener() {
 
   // Handle touch events (Mobile)
   document.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX;
+    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
   });
 
   document.addEventListener('touchmove', function (e) {
-    touchEndX = e.touches[0].clientX;
+    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
   });
 
   document.addEventListener('touchend', function () {
     const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1;
+    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
-    if (Math.abs(swipeDistance) > 30) {
+    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
       projects.forEach((project, i) => {
         project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-
-        // Update the image texture
-        project.mesh.material.map = new THREE.TextureLoader().load(project.images[project.imageIndex]);
-        project.mesh.material.needsUpdate = true;
-
-        // Animate the project item using the same animation as the original
-        animateProjectItem(project, i);
+        updateImageWithAnimation(project, i); // Apply animation with index-based delay
       });
     }
   });
 
-  // Initial animation when clicking the menu
+  // The rest of the code remains the same for showing the project planes
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
@@ -751,13 +748,22 @@ function projectsMenuListener() {
     });
     gsap.delayedCall(1.5, enableCloseBtn);
 
-    // Animate and show project items as in the original code
+    // Animate & show project items
     projects.forEach((project, i) => {
-      animateProjectItem(project, i); // Same animation for initial load
+      project.mesh.scale.set(1, 1, 1);
+      gsap.to(project.mesh.material, {
+        opacity: 1,
+        duration: 1.5,
+        delay: 1.5 + i * 0.1,
+      });
+      gsap.to(project.mesh.position, {
+        y: project.y + 0.05,
+        duration: 1,
+        delay: 1.5 + i * 0.1,
+      });
     });
   });
 }
-
 
 
 
