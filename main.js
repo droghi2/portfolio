@@ -668,7 +668,7 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
-  // Scroll listener or buttons for cycling images
+  // Handle desktop scroll event (PC)
   document.addEventListener('wheel', function (e) {
     // Scroll direction (positive or negative)
     const direction = e.deltaY > 0 ? 1 : -1;
@@ -679,9 +679,39 @@ function projectsMenuListener() {
 
       // Load the new image into the texture
       const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
-      project.mesh.material.map = newTexture; // Update the texture
+      project.mesh.material.map = newTexture;
       project.mesh.material.needsUpdate = true;
     });
+  });
+
+  // Variables to track touch positions
+  let touchStartY = 0;
+  let touchEndY = 0;
+
+  // Handle touch events (Mobile)
+  document.addEventListener('touchstart', function (e) {
+    touchStartY = e.touches[0].clientY; // Get the Y position where the touch started
+  });
+
+  document.addEventListener('touchmove', function (e) {
+    touchEndY = e.touches[0].clientY; // Get the Y position where the touch moved
+  });
+
+  document.addEventListener('touchend', function () {
+    const swipeDistance = touchEndY - touchStartY;
+    const direction = swipeDistance > 0 ? -1 : 1; // Detect swipe direction: swipe up = next, swipe down = previous
+
+    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
+      projects.forEach((project, i) => {
+        // Update imageIndex based on swipe direction
+        project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+
+        // Load the new image into the texture
+        const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
+        project.mesh.material.map = newTexture;
+        project.mesh.material.needsUpdate = true;
+      });
+    }
   });
 
   // The rest of the code remains the same for showing the project planes
