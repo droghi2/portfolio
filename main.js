@@ -29,11 +29,11 @@ let clipNames = [
 ];
 let projects = [
   
-  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1', title: 'Project Main' },
-  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveHole.png'], url: 'http://example.com/project2', title: 'Project Snow' },
-  { images: ['textures/ClearSkyMainArea.png', 'textures/WholeSnow.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project3', title: 'Project Cave' },
-  // { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
-  // { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
+  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
+  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
+  { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
+  { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
+  { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
   // {
   //   image: 'textures/FoggiMainArea.png',
   //   url: 'https://www.spaze.social/',
@@ -636,7 +636,7 @@ function aboutMenuListener() {
   });
 }
 
-projects.forEach(project => project.imageIndex = 0); // Initialize image index for each project
+projects.forEach(project => project.imageIndex = 0);
 
 function projectsMenuListener() {
   // Create project planes with textures
@@ -670,7 +670,7 @@ function projectsMenuListener() {
   });
 
   // Reusable animation function for updating the texture and animating
-  function updateImageWithAnimation(project) {
+  function updateImageWithAnimation(project, index) {
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
     // Animate the material opacity and Y-axis movement
@@ -685,17 +685,18 @@ function projectsMenuListener() {
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 1.5,
+          delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
         });
         gsap.fromTo(
           project.mesh.scale,
           { x: 0.95, y: 0.95 },
-          { x: 1, y: 1, duration: 0.5 }
+          { x: 1, y: 1, duration: 0.5, delay: index * 0.1 }
         );
         // Animate movement from slightly below its final Y position
         gsap.fromTo(
           project.mesh.position,
           { y: project.y - 0.2 }, // Start slightly below
-          { y: project.y, duration: 0.5 }
+          { y: project.y, duration: 0.5, delay: index * 0.1 }
         );
       },
     });
@@ -705,17 +706,15 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    // Change the active project index based on the scroll direction
-    activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-
-    // Update the title for the currently active project
-    createProjectTitle(projects[activeProjectIndex].title);
-
-    // Update image index for the currently displayed project
-    const currentProject = projects[activeProjectIndex];
-    currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-    updateImageWithAnimation(currentProject); // Update project images with animation
+    projects.forEach((project, i) => {
+      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+      updateImageWithAnimation(project, i); // Apply animation with index-based delay
+    });
   });
+
+  // Variables to track touch positions for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
 
   // Handle touch events (Mobile)
   document.addEventListener('touchstart', function (e) {
@@ -731,20 +730,14 @@ function projectsMenuListener() {
     const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
     if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      // Change the active project index based on swipe direction
-      activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-
-      // Update the title for the currently active project
-      createProjectTitle(projects[activeProjectIndex].title);
-
-      // Update image index for the currently displayed project
-      const currentProject = projects[activeProjectIndex];
-      currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-      updateImageWithAnimation(currentProject); // Update project images with animation
+      projects.forEach((project, i) => {
+        project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+        updateImageWithAnimation(project, i); // Apply animation with index-based delay
+      });
     }
   });
 
-  // Call this function when the project menu is opened
+  // The rest of the code remains the same for showing the project planes
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
@@ -757,10 +750,9 @@ function projectsMenuListener() {
       ...projectsCameraRot,
       duration: 1.5,
     });
-
     gsap.delayedCall(1.5, enableCloseBtn);
 
-    // Show project items
+    // Animate & show project items
     projects.forEach((project, i) => {
       project.mesh.scale.set(1, 1, 1);
       gsap.to(project.mesh.material, {
@@ -774,46 +766,8 @@ function projectsMenuListener() {
         delay: 1.5 + i * 0.1,
       });
     });
-
-    // Show title for the first project initially
-    createProjectTitle(projects[activeProjectIndex].title);
   });
 }
-
-// Active project index and project title text
-let activeProjectIndex = 0;
-let projectTitleText;
-
-// Function to create project group titles
-function createProjectTitle(title) {
-  // Remove existing title text if it exists
-  if (projectTitleText) {
-    scene.remove(projectTitleText);
-  }
-
-  const loader = new FontLoader();
-  loader.load('fonts/unione.json', function (font) {
-    const textMaterials = [
-      new THREE.MeshPhongMaterial({ color: 0x171f27, flatShading: true }),
-      new THREE.MeshPhongMaterial({ color: 0xffffff }),
-    ];
-
-    // Create new title geometry and mesh
-    const titleGeo = new TextGeometry(title, {
-      font: font,
-      size: 0.08,
-      height: 0.01,
-    });
-
-    projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
-    projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
-    projectTitleText.position.set(0.8, 0.5, -1); // Position it above the second column
-    scene.add(projectTitleText);
-  });
-}
-
-// Initialize the project menu listener
-projectsMenuListener();
 
 
 
