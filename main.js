@@ -680,20 +680,23 @@ function projectsMenuListener() {
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
 
-    // Animate & show project items
-    projects.forEach((project, i) => {
-      project.mesh.scale.set(1, 1, 1);
-      gsap.to(project.mesh.material, {
-        opacity: 1,
-        duration: 1.5,
-        delay: 1.5 + i * 0.1,
-      });
-      gsap.to(project.mesh.position, {
-        y: project.y + 0.05,
-        duration: 1,
-        delay: 1.5 + i * 0.1,
-      });
-    });
+        // Animate back in with Y-axis movement, scaling, and opacity
+        gsap.to(project.mesh.material, {
+          opacity: 1,
+          duration: 0.5,
+          delay: index * 0.1, // Add delay for consecutive appearance
+        });
+        gsap.fromTo(
+          project.mesh.scale,
+          { x: 0.95, y: 0.95 },
+          { x: 1, y: 1, duration: 0.5, delay: index * 0.1 }
+        );
+        // Animate movement from slightly below its final Y position
+        gsap.fromTo(
+          project.mesh.position,
+          { y: project.y - 0.2 }, // Start slightly below
+          { y: project.y, duration: 0.5, delay: index * 0.1 }
+        );
       },
     });
   }
