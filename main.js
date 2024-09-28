@@ -638,6 +638,43 @@ function aboutMenuListener() {
 
 projects.forEach(project => project.imageIndex = 0);
 
+let groupTitleText; // Global variable to hold the title text
+
+// Function to load and display the initial group title
+function loadGroupTitle(text) {
+  const loader = new FontLoader();
+  loader.load('fonts/unione.json', function (font) {
+    const textMaterials = [
+      new THREE.MeshPhongMaterial({ color: 0x171f27, flatShading: true }),
+      new THREE.MeshPhongMaterial({ color: 0xffffff }),
+    ];
+    const titleGeo = new TextGeometry(text, {
+      font: font,
+      size: 0.08,
+      height: 0.01,
+    });
+    groupTitleText = new THREE.Mesh(titleGeo, textMaterials);
+    groupTitleText.position.set(0.8, 1.2, -1.15); // Adjust as needed to position above second column
+    scene.add(groupTitleText);
+  });
+}
+
+// Function to update the title text when scrolling
+function updateGroupTitle(newText) {
+  groupTitleText.geometry.dispose(); // Remove the old geometry
+  const loader = new FontLoader();
+  loader.load('fonts/unione.json', function (font) {
+    const newTitleGeo = new TextGeometry(newText, {
+      font: font,
+      size: 0.08,
+      height: 0.01,
+    });
+    groupTitleText.geometry = newTitleGeo; // Update geometry with the new text
+  });
+}
+
+projects.forEach(project => project.imageIndex = 0);
+
 function projectsMenuListener() {
   // Create project planes with textures
   projects.forEach((project, i) => {
@@ -669,8 +706,8 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
-  // Load and show the initial group title
-  loadGroupTitle("Initial Project Group Title");
+  // Load the initial group title (You can choose the first project group title here)
+  loadGroupTitle(projects[0].groupTitle); // Assuming you have a groupTitle property for each project
 
   // Reusable animation function for updating the texture and animating
   function updateImageWithAnimation(project, index) {
@@ -709,42 +746,47 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
+    // Update all project images and titles on scroll
     projects.forEach((project, i) => {
       project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
       updateImageWithAnimation(project, i); // Apply animation with index-based delay
     });
 
-    // Update the group title when scrolling
-    const newGroupTitle = direction > 0 ? "Next Project Group" : "Previous Project Group";
-    updateGroupTitle(newGroupTitle);
+    // Change group title based on the new group (e.g., based on current imageIndex or project group)
+    const currentGroupTitle = projects[0].groupTitle; // Example logic, modify based on your group logic
+    updateGroupTitle(currentGroupTitle);
   });
+
+  // Variables to track touch positions for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
 
   // Handle touch events (Mobile)
   document.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX;
+    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
   });
 
   document.addEventListener('touchmove', function (e) {
-    touchEndX = e.touches[0].clientX;
+    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
   });
 
   document.addEventListener('touchend', function () {
     const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1;
+    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
-    if (Math.abs(swipeDistance) > 30) {
+    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
       projects.forEach((project, i) => {
         project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-        updateImageWithAnimation(project, i);
+        updateImageWithAnimation(project, i); // Apply animation with index-based delay
       });
 
-      // Update the group title on mobile scroll
-      const newGroupTitle = direction > 0 ? "Next Project Group" : "Previous Project Group";
-      updateGroupTitle(newGroupTitle);
+      // Change group title on swipe
+      const currentGroupTitle = projects[0].groupTitle; // Example logic, modify based on your group logic
+      updateGroupTitle(currentGroupTitle);
     }
   });
 
-  // Animate & show project items on menu click
+  // The rest of the code remains the same for showing the project planes
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
@@ -759,7 +801,7 @@ function projectsMenuListener() {
     });
     gsap.delayedCall(1.5, enableCloseBtn);
 
-    // Show project items
+    // Animate & show project items
     projects.forEach((project, i) => {
       project.mesh.scale.set(1, 1, 1);
       gsap.to(project.mesh.material, {
