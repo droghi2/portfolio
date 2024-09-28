@@ -668,20 +668,45 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
+  // Reusable animation function for updating the texture and animating
+  function updateImageWithAnimation(project) {
+    // Load the new texture
+    const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
+
+    // Animate the material opacity to 0 before changing the texture
+    gsap.to(project.mesh.material, {
+      opacity: 0,
+      duration: 0.5,
+      onComplete: () => {
+        // Once faded out, update the texture
+        project.mesh.material.map = newTexture;
+        project.mesh.material.needsUpdate = true;
+
+        // Animate back in with scaling and opacity
+        gsap.to(project.mesh.material, {
+          opacity: 1,
+          duration: 0.5,
+        });
+        gsap.fromTo(
+          project.mesh.scale,
+          { x: 0.95, y: 0.95 },
+          { x: 1, y: 1, duration: 0.5 }
+        );
+      },
+    });
+  }
+
   // Handle desktop scroll event (PC)
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    projects.forEach((project, i) => {
+    projects.forEach((project) => {
       project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-
-      const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
-      project.mesh.material.map = newTexture;
-      project.mesh.material.needsUpdate = true;
+      updateImageWithAnimation(project); // Apply animation when changing the image
     });
   });
 
-  // Variables to track touch positions
+  // Variables to track touch positions for mobile
   let touchStartX = 0;
   let touchEndX = 0;
 
@@ -699,12 +724,9 @@ function projectsMenuListener() {
     const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
     if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      projects.forEach((project, i) => {
+      projects.forEach((project) => {
         project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-
-        const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
-        project.mesh.material.map = newTexture;
-        project.mesh.material.needsUpdate = true;
+        updateImageWithAnimation(project); // Apply animation when swiping the image
       });
     }
   });
@@ -724,7 +746,7 @@ function projectsMenuListener() {
     });
     gsap.delayedCall(1.5, enableCloseBtn);
 
-    // animate & show project items
+    // Animate & show project items
     projects.forEach((project, i) => {
       project.mesh.scale.set(1, 1, 1);
       gsap.to(project.mesh.material, {
