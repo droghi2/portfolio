@@ -29,8 +29,8 @@ let clipNames = [
 ];
 let projects = [
   
-  { title: 'Project 1', images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
-  { title: 'Project 2', images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
+  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
+  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
   // { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
   // { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
   // { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
@@ -638,28 +638,25 @@ function aboutMenuListener() {
 
 projects.forEach(project => project.imageIndex = 0);
 
-let activeProjectIndex = 0; // Track the currently active project index
-
 function projectsMenuListener() {
-  // Create project planes with textures for the first project
-  function createProjectPlanes(project) {
+  // Create project planes with textures
+  projects.forEach((project, i) => {
+    const colIndex = i % 3;
+    const rowIndex = Math.floor(i / 3);
+
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      map: new THREE.TextureLoader().load(project.images[0]), // Load first image
+      map: new THREE.TextureLoader().load(project.images[project.imageIndex]), // Load first image
       transparent: true,
       opacity: 0.0,
     });
-
     const projectPlane = new THREE.Mesh(geometry, material);
     projectPlane.name = 'project';
     projectPlane.userData = {
       url: project.url,
     };
 
-    const colIndex = activeProjectIndex % 3;
-    const rowIndex = Math.floor(activeProjectIndex / 3);
-    
     projectPlane.position.set(
       0.3 + colIndex * 0.8,
       1 - rowIndex * 0.5,
@@ -667,20 +664,16 @@ function projectsMenuListener() {
     );
     projectPlane.scale.set(0, 0, 0);
 
-    return projectPlane;
-  }
+    projects[i].mesh = projectPlane;
+    projects[i].y = 1 - rowIndex * 0.5;
+    scene.add(projectPlane);
+  });
 
-  // Initial creation of project planes
-  const projectPlane = createProjectPlanes(projects[activeProjectIndex]);
-  scene.add(projectPlane);
-  projects[activeProjectIndex].mesh = projectPlane;
+  // Reusable animation function for updating the texture and animating
+  function updateImageWithAnimation(project, index) {
+    const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
-  // Function to update project images with animation
-  function updateProjectImages() {
-    const project = projects[activeProjectIndex];
-    const newTexture = new THREE.TextureLoader().load(project.images[0]); // Always use the first image of the active project
-
-    // Animate the material opacity and update texture
+    // Animate the material opacity and Y-axis movement
     gsap.to(project.mesh.material, {
       opacity: 0,
       duration: 0.2,
@@ -688,10 +681,23 @@ function projectsMenuListener() {
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
 
+        // Animate back in with Y-axis movement, scaling, and opacity
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 1.5,
+          delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
         });
+        gsap.fromTo(
+          project.mesh.scale,
+          { x: 0.95, y: 0.95 },
+          { x: 1, y: 1, duration: 0.5, delay: index * 0.1 }
+        );
+        // Animate movement from slightly below its final Y position
+        gsap.fromTo(
+          project.mesh.position,
+          { y: project.y - 0.2 }, // Start slightly below
+          { y: project.y, duration: 0.5, delay: index * 0.1 }
+        );
       },
     });
   }
@@ -700,57 +706,68 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    // Change the active project index based on the scroll direction
-    activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-
-    // Update project images
-    updateProjectImages();
+    projects.forEach((project, i) => {
+      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+      updateImageWithAnimation(project, i); // Apply animation with index-based delay
+    });
   });
+
+  // Variables to track touch positions for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
 
   // Handle touch events (Mobile)
+  document.addEventListener('touchstart', function (e) {
+    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
+  });
+
+  document.addEventListener('touchmove', function (e) {
+    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
+  });
+
   document.addEventListener('touchend', function () {
     const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1;
+    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
     if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-      updateProjectImages();
+      projects.forEach((project, i) => {
+        project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
+        updateImageWithAnimation(project, i); // Apply animation with index-based delay
+      });
     }
   });
 
-  // Initial display of the first project title
-  createProjectTitle(projects[activeProjectIndex].title);
-
-  // Update the project title on project change
-  function createProjectTitle(title) {
-    if (projectTitleText) {
-      scene.remove(projectTitleText);
-    }
-
-    const loader = new FontLoader();
-    loader.load('fonts/unione.json', function (font) {
-      const textMaterials = [
-        new THREE.MeshPhongMaterial({ color: 0x171f27, flatShading: true }),
-        new THREE.MeshPhongMaterial({ color: 0xffffff }),
-      ];
-
-      const titleGeo = new TextGeometry(title, {
-        font: font,
-        size: 0.08,
-        height: 0.01,
-      });
-
-      projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
-      projectTitleText.rotation.z = Math.PI * 0.5;
-      projectTitleText.position.set(0.8, 0.5, -1);
-      scene.add(projectTitleText);
+  // The rest of the code remains the same for showing the project planes
+  document.getElementById('projects-menu').addEventListener('click', function (e) {
+    e.preventDefault();
+    disableOrbitControls();
+    resetBookCover();
+    gsap.to(camera.position, {
+      ...projectsCameraPos,
+      duration: 1.5,
     });
-  }
+    gsap.to(camera.rotation, {
+      ...projectsCameraRot,
+      duration: 1.5,
+    });
+    gsap.delayedCall(1.5, enableCloseBtn);
+
+    // Animate & show project items
+    projects.forEach((project, i) => {
+      project.mesh.scale.set(1, 1, 1);
+      gsap.to(project.mesh.material, {
+        opacity: 1,
+        duration: 1.5,
+        delay: 1.5 + i * 0.1,
+      });
+      gsap.to(project.mesh.position, {
+        y: project.y + 0.05,
+        duration: 1,
+        delay: 1.5 + i * 0.1,
+      });
+    });
+  });
 }
-
-// Call this function to set up the project listener
-projectsMenuListener();
-
 
 
 
