@@ -29,9 +29,9 @@ let clipNames = [
 ];
 let projects = [
   
-  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1', title: 'Project 0' },
-  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2', title: 'Project 1' },
-  { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
+  { images: ['textures/FoggiMainArea.png', 'textures/WholeMainArea.png'], url: 'http://example.com/project1', title: 'Project Main' },
+  { images: ['textures/SnowArea.png', 'textures/SnowTODesert.png'], url: 'http://example.com/project2', title: 'Project Snow' },
+  { images: ['textures/CaveEntrance.png', 'textures/CaveHole.png'], url: 'http://example.com/project3', title: 'Project Cave' },
   { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
   { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
   // {
