@@ -29,11 +29,11 @@ let clipNames = [
 ];
 let projects = [
   
-  { images: ['textures/FoggiMainArea.png', 'textures/WholeMainArea.png'], url: 'http://example.com/project1', title: 'Project Main' },
-  { images: ['textures/SnowArea.png', 'textures/SnowTODesert.png'], url: 'http://example.com/project2', title: 'Project Snow' },
-  { images: ['textures/CaveEntrance.png', 'textures/CaveHole.png'], url: 'http://example.com/project3', title: 'Project Cave' },
-  { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
-  { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
+  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1', title: 'Project Main' },
+  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveHole.png'], url: 'http://example.com/project2', title: 'Project Snow' },
+  { images: ['textures/test.png', 'textures/WholeSnow.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project3', title: 'Project Cave' },
+  // { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
+  // { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
   // {
   //   image: 'textures/FoggiMainArea.png',
   //   url: 'https://www.spaze.social/',
@@ -796,7 +796,7 @@ function createProjectTitle(title) {
 
     projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
     projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
-    projectTitleText.position.set(0.8, 0.8, -1); // Position it above the second column
+    projectTitleText.position.set(0.8, 0.5, -1); // Position it above the second column
     scene.add(projectTitleText);
   });
 }
