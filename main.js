@@ -770,6 +770,7 @@ function projectsMenuListener() {
 }
 
 
+let activeProjectIndex = 0; // Track the currently active project index
 let projectTitleText; // Variable to hold the title text mesh
 
 // Function to create project group titles
@@ -795,7 +796,7 @@ function createProjectTitle(title) {
 
     projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
     projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
-    projectTitleText.position.set(0.8, 0.8, -1); // Position it above the second column
+    projectTitleText.position.set(0.8, 1.2, -1); // Position it above the second column
     scene.add(projectTitleText);
   });
 }
@@ -832,28 +833,24 @@ document.getElementById('projects-menu').addEventListener('click', function (e) 
     });
   });
 
-  // Show initial title for the first project
-  createProjectTitle(projects[0].title);
+  // Show title for the first project initially
+  createProjectTitle(projects[activeProjectIndex].title);
 });
-
-// Handle scrolling or touch events to update the title
-function updateProjectTitle() {
-  const currentProjectIndex = projects[0].imageIndex; // This assumes you're keeping the first project's index
-  createProjectTitle(projects[currentProjectIndex].title);
-}
 
 // Handle desktop scroll event (PC)
 document.addEventListener('wheel', function (e) {
   const direction = e.deltaY > 0 ? 1 : -1;
 
-  // Update image index for the currently displayed project
-  projects.forEach((project, i) => {
-    project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-    updateImageWithAnimation(project, i); // Update project images with animation
-  });
+  // Change the active project index based on the scroll direction
+  activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
 
-  // Update the title for the currently displayed project
-  updateProjectTitle();
+  // Update the title for the currently active project
+  createProjectTitle(projects[activeProjectIndex].title);
+
+  // Update image index for the currently displayed project
+  const currentProject = projects[activeProjectIndex];
+  currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
+  updateImageWithAnimation(currentProject, activeProjectIndex); // Update project images with animation
 });
 
 // Mobile touch gesture handling
@@ -862,15 +859,19 @@ document.addEventListener('touchend', function () {
   const direction = swipeDistance < 0 ? 1 : -1;
 
   if (Math.abs(swipeDistance) > 30) {
-    projects.forEach((project, i) => {
-      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-      updateImageWithAnimation(project, i); // Update project images with animation
-    });
+    // Change the active project index based on swipe direction
+    activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
 
-    // Update the title for the currently displayed project
-    updateProjectTitle();
+    // Update the title for the currently active project
+    createProjectTitle(projects[activeProjectIndex].title);
+
+    // Update image index for the currently displayed project
+    const currentProject = projects[activeProjectIndex];
+    currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
+    updateImageWithAnimation(currentProject, activeProjectIndex); // Update project images with animation
   }
 });
+
 
 
 function init3DWorldClickListeners() {
