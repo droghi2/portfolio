@@ -684,7 +684,7 @@ function projectsMenuListener() {
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 1.5,
-          delay: 1.5 + index * 0.1, // Add delay for consecutive appearance
+          delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
         });
         gsap.fromTo(
           project.mesh.scale,
