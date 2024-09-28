@@ -668,8 +668,13 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
+  let isAnimating = false; // Flag to check if animation is in progress
+
   // Reusable animation function for updating the texture and animating
   function updateImageWithAnimation(project, index) {
+    if (isAnimating) return; // Prevent further animations while one is in progress
+    isAnimating = true; // Set the flag
+
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
     // Animate the material opacity and Y-axis movement
@@ -685,6 +690,9 @@ function projectsMenuListener() {
           opacity: 1,
           duration: 1.5,
           delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
+          onComplete: () => {
+            isAnimating = false; // Reset the flag once animation is complete
+          },
         });
         gsap.fromTo(
           project.mesh.scale,
@@ -703,6 +711,7 @@ function projectsMenuListener() {
 
   // Handle desktop scroll event (PC)
   document.addEventListener('wheel', function (e) {
+    if (isAnimating) return; // Prevent scrolling if animating
     const direction = e.deltaY > 0 ? 1 : -1;
 
     projects.forEach((project, i) => {
@@ -725,6 +734,7 @@ function projectsMenuListener() {
   });
 
   document.addEventListener('touchend', function () {
+    if (isAnimating) return; // Prevent scrolling if animating
     const swipeDistance = touchEndX - touchStartX;
     const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
