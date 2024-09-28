@@ -28,25 +28,12 @@ let clipNames = [
   'fan_rotation.004',
 ];
 let projects = [
-  {
-    url: 'url1',
-    title: 'Project 1 Title',
-    images: ['textures/FoggiMainArea.png', 'textures/WholeMainArea.png'],
-    imageIndex: 0,
-  },
-  {
-    url: 'url1',
-    title: 'Project 1 Title',
-    images: ['textures/SnowArea.png', 'textures/SnowTODesert.png'],
-    imageIndex: 0,
-  },
-
-
-  // { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
-  // { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
-  // { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
-  // { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
-  // { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
+  
+  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
+  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
+  { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
+  { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
+  { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
   // {
   //   image: 'textures/FoggiMainArea.png',
   //   url: 'https://www.spaze.social/',
@@ -652,7 +639,7 @@ function aboutMenuListener() {
 projects.forEach(project => project.imageIndex = 0);
 
 function projectsMenuListener() {
-  // Create project planes with textures and titles
+  // Create project planes with textures
   projects.forEach((project, i) => {
     const colIndex = i % 3;
     const rowIndex = Math.floor(i / 3);
@@ -680,25 +667,6 @@ function projectsMenuListener() {
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
     scene.add(projectPlane);
-
-    // Create a title for the project
-    const titleGeometry = new THREE.TextGeometry(project.title, {
-      font: yourFont, // Load your font beforehand
-      size: 0.2,
-      height: 0.01,
-    });
-    const titleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const titleMesh = new THREE.Mesh(titleGeometry, titleMaterial);
-
-    // Position the title above the project
-    titleMesh.position.set(
-      0.3 + colIndex * 0.8,
-      1 - rowIndex * 0.5 + 0.25, // Adjust height as needed
-      -1.15
-    );
-
-    projects[i].titleMesh = titleMesh; // Store title mesh in project data
-    scene.add(titleMesh);
   });
 
   // Reusable animation function for updating the texture and animating
@@ -730,13 +698,6 @@ function projectsMenuListener() {
           { y: project.y - 0.2 }, // Start slightly below
           { y: project.y, duration: 0.5, delay: index * 0.1 }
         );
-
-        // Update title position or opacity if needed (optional)
-        gsap.to(project.titleMesh.material, {
-          opacity: 1,
-          duration: 0.5,
-          delay: 0.5 + index * 0.1,
-        });
       },
     });
   }
@@ -804,17 +765,9 @@ function projectsMenuListener() {
         duration: 1,
         delay: 1.5 + i * 0.1,
       });
-
-      // Animate title visibility
-      gsap.to(project.titleMesh.material, {
-        opacity: 1,
-        duration: 1.5,
-        delay: 1.5 + i * 0.1,
-      });
     });
   });
 }
-
 
 
 
