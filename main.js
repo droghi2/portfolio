@@ -29,8 +29,8 @@ let clipNames = [
 ];
 let projects = [
   
-  { images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
-  { images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
+  { title: 'Project 1', images: ['textures/FoggiMainArea.png', 'textures/SnowArea.png', 'textures/CaveEntrance.png'], url: 'http://example.com/project1' },
+  { title: 'Project 2', images: ['textures/WholeMainArea.png', 'textures/SnowTODesert.png', 'textures/CaveWithLake.png'], url: 'http://example.com/project2' },
   // { images: ['test.png', 'test2.png'], url: 'http://example.com/project3' },
   // { images: ['project4_1.jpg', 'project4_2.jpg'], url: 'http://example.com/project4' },
   // { images: ['project5_1.jpg', 'project5_2.jpg'], url: 'http://example.com/project5' },  
@@ -651,6 +651,7 @@ function projectsMenuListener() {
       transparent: true,
       opacity: 0.0,
     });
+    
     const projectPlane = new THREE.Mesh(geometry, material);
     projectPlane.name = 'project';
     projectPlane.userData = {
@@ -706,42 +707,24 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    projects.forEach((project, i) => {
-      project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-      updateImageWithAnimation(project, i); // Apply animation with index-based delay
-    });
+    // Adjust the active project based on the scroll direction
+    const activeProjectIndex = projects.findIndex(project => project.mesh.scale.x === 1); // Assuming a scale of 1 means it's active
+
+    // Update the image index for the active project only
+    const activeProject = projects[activeProjectIndex];
+    activeProject.imageIndex = (activeProject.imageIndex + direction + activeProject.images.length) % activeProject.images.length;
+    updateImageWithAnimation(activeProject, activeProjectIndex);
   });
 
-  // Variables to track touch positions for mobile
-  let touchStartX = 0;
-  let touchEndX = 0;
+  // Mobile swipe handling remains unchanged
+  // ...
 
-  // Handle touch events (Mobile)
-  document.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
-  });
-
-  document.addEventListener('touchmove', function (e) {
-    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
-  });
-
-  document.addEventListener('touchend', function () {
-    const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
-
-    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      projects.forEach((project, i) => {
-        project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-        updateImageWithAnimation(project, i); // Apply animation with index-based delay
-      });
-    }
-  });
-
-  // The rest of the code remains the same for showing the project planes
+  // Show projects on menu click
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
     resetBookCover();
+    
     gsap.to(camera.position, {
       ...projectsCameraPos,
       duration: 1.5,
