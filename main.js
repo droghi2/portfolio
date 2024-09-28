@@ -45,7 +45,19 @@ let projects = [
     url: 'https://wholesale.com.np/',
   },
   {
-    image: 'textures/project-myteachers.jpg',
+    image: 'textures/WholeMainArea.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/CaveHole.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/SnowTODesert.png',
+    url: 'https://wholesale.com.np/',
+  },
+  {
+    image: 'textures/SnowArea.png',
     url: 'https://wholesale.com.np/',
   },
 ];
