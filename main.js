@@ -794,7 +794,7 @@ function createProjectTitle(title) {
     });
 
     projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
-    projectTitleText.rotation.y = Math.PI * 0;
+    projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
     projectTitleText.position.set(0.8, 1.2, -1); // Position it above the second column
     scene.add(projectTitleText);
   });
@@ -832,22 +832,28 @@ document.getElementById('projects-menu').addEventListener('click', function (e) 
     });
   });
 
-  // Show initial title for the first group of projects
+  // Show initial title for the first project
   createProjectTitle(projects[0].title);
 });
 
 // Handle scrolling or touch events to update the title
+function updateProjectTitle() {
+  const currentProjectIndex = projects[0].imageIndex; // This assumes you're keeping the first project's index
+  createProjectTitle(projects[currentProjectIndex].title);
+}
+
+// Handle desktop scroll event (PC)
 document.addEventListener('wheel', function (e) {
   const direction = e.deltaY > 0 ? 1 : -1;
 
+  // Update image index for the currently displayed project
   projects.forEach((project, i) => {
     project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
     updateImageWithAnimation(project, i); // Update project images with animation
   });
 
-  // Update title based on the new group of projects being displayed
-  const currentGroupIndex = Math.floor(projects[0].imageIndex / 3); // Adjust based on how you group projects
-  createProjectTitle(projects[currentGroupIndex].title);
+  // Update the title for the currently displayed project
+  updateProjectTitle();
 });
 
 // Mobile touch gesture handling
@@ -861,9 +867,8 @@ document.addEventListener('touchend', function () {
       updateImageWithAnimation(project, i); // Update project images with animation
     });
 
-    // Update the title for the current project group
-    const currentGroupIndex = Math.floor(projects[0].imageIndex / 3);
-    createProjectTitle(projects[currentGroupIndex].title);
+    // Update the title for the currently displayed project
+    updateProjectTitle();
   }
 });
 
