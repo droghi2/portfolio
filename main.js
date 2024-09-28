@@ -669,6 +669,9 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
+  // Load and show the initial group title
+  loadGroupTitle("Initial Project Group Title");
+
   // Reusable animation function for updating the texture and animating
   function updateImageWithAnimation(project, index) {
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
@@ -710,34 +713,38 @@ function projectsMenuListener() {
       project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
       updateImageWithAnimation(project, i); // Apply animation with index-based delay
     });
-  });
 
-  // Variables to track touch positions for mobile
-  let touchStartX = 0;
-  let touchEndX = 0;
+    // Update the group title when scrolling
+    const newGroupTitle = direction > 0 ? "Next Project Group" : "Previous Project Group";
+    updateGroupTitle(newGroupTitle);
+  });
 
   // Handle touch events (Mobile)
   document.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
+    touchStartX = e.touches[0].clientX;
   });
 
   document.addEventListener('touchmove', function (e) {
-    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
+    touchEndX = e.touches[0].clientX;
   });
 
   document.addEventListener('touchend', function () {
     const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
+    const direction = swipeDistance < 0 ? 1 : -1;
 
-    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
+    if (Math.abs(swipeDistance) > 30) {
       projects.forEach((project, i) => {
         project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-        updateImageWithAnimation(project, i); // Apply animation with index-based delay
+        updateImageWithAnimation(project, i);
       });
+
+      // Update the group title on mobile scroll
+      const newGroupTitle = direction > 0 ? "Next Project Group" : "Previous Project Group";
+      updateGroupTitle(newGroupTitle);
     }
   });
 
-  // The rest of the code remains the same for showing the project planes
+  // Animate & show project items on menu click
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
@@ -752,7 +759,7 @@ function projectsMenuListener() {
     });
     gsap.delayedCall(1.5, enableCloseBtn);
 
-    // Animate & show project items
+    // Show project items
     projects.forEach((project, i) => {
       project.mesh.scale.set(1, 1, 1);
       gsap.to(project.mesh.material, {
