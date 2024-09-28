@@ -654,7 +654,7 @@ function loadGroupTitle(text) {
       height: 0.01,
     });
     groupTitleText = new THREE.Mesh(titleGeo, textMaterials);
-    groupTitleText.position.set(0.8, 1.2, -1.15); // Adjust as needed to position above second column
+    groupTitleText.position.set(0, 0, 0); // Adjust as needed to position above second column
     scene.add(groupTitleText);
   });
 }
