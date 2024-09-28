@@ -621,9 +621,9 @@ function aboutMenuListener() {
 function projectsMenuListener() {
   // create project planes with textures
   projects.forEach((project, i) => {
-    // Update colIndex to support 2 columns
-    const colIndex = i % 2;  // 0 or 1, to alternate between two columns
-    const rowIndex = Math.floor(i / 2); // Every 2 items, start a new row
+    // Update colIndex to support 3 columns
+    const colIndex = i % 3;  // 0, 1, or 2, to alternate between three columns
+    const rowIndex = Math.floor(i / 3); // Every 3 items, start a new row
 
     const geometry = new THREE.PlaneGeometry(0.71, 0.4);
     const material = new THREE.MeshBasicMaterial({
@@ -638,10 +638,10 @@ function projectsMenuListener() {
       url: project.url,
     };
 
-    // Adjust project positions to fit in two columns
+    // Adjust project positions to fit in three columns
     projectPlane.position.set(
-      0.3 + colIndex * 0.8, // Update for two columns
-      1 - rowIndex * 0.5, // Keep row spacing as before
+      0.3 + colIndex * 0.8,  // Adjust for three columns
+      1 - rowIndex * 0.5,    // Keep row spacing as before
       -1.15
     );
     projectPlane.scale.set(0, 0, 0);
@@ -684,6 +684,7 @@ function projectsMenuListener() {
       });
     });
 }
+
 
 
 function init3DWorldClickListeners() {
