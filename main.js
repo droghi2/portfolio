@@ -794,8 +794,8 @@ function createProjectTitle(title) {
     });
 
     projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
-    projectTitleText.rotation.y = Math.PI * 1;
-    projectTitleText.position.set(1.1, 1.5, -1); // Position it above the second column
+    projectTitleText.rotation.y = Math.PI * 0;
+    projectTitleText.position.set(1.1, 1.0, -1); // Position it above the second column
     scene.add(projectTitleText);
   });
 }
