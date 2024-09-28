@@ -636,7 +636,7 @@ function aboutMenuListener() {
   });
 }
 
-projects.forEach(project => project.imageIndex = 0);
+projects.forEach(project => project.imageIndex = 0); // Initialize image index for each project
 
 function projectsMenuListener() {
   // Create project planes with textures
@@ -669,10 +669,11 @@ function projectsMenuListener() {
     scene.add(projectPlane);
   });
 
-  // Update the image with animation for the currently active project
+  // Reusable animation function for updating the texture and animating
   function updateImageWithAnimation(project) {
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
+    // Animate the material opacity and Y-axis movement
     gsap.to(project.mesh.material, {
       opacity: 0,
       duration: 0.2,
@@ -680,7 +681,7 @@ function projectsMenuListener() {
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
 
-        // Animate back in with Y-axis movement and opacity
+        // Animate back in with Y-axis movement, scaling, and opacity
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 1.5,
@@ -704,18 +705,19 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    // Only change the imageIndex of the currently active project
+    // Change the active project index based on the scroll direction
+    activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
+
+    // Update the title for the currently active project
+    createProjectTitle(projects[activeProjectIndex].title);
+
+    // Update image index for the currently displayed project
     const currentProject = projects[activeProjectIndex];
     currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-    
-    // Update image for the currently active project
-    updateImageWithAnimation(currentProject);
+    updateImageWithAnimation(currentProject); // Update project images with animation
   });
 
-  // Handle mobile touch events
-  let touchStartX = 0;
-  let touchEndX = 0;
-
+  // Handle touch events (Mobile)
   document.addEventListener('touchstart', function (e) {
     touchStartX = e.touches[0].clientX; // Get the X position where the touch started
   });
@@ -729,24 +731,24 @@ function projectsMenuListener() {
     const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
     if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      // Only change the imageIndex of the currently active project
+      // Change the active project index based on swipe direction
+      activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
+
+      // Update the title for the currently active project
+      createProjectTitle(projects[activeProjectIndex].title);
+
+      // Update image index for the currently displayed project
       const currentProject = projects[activeProjectIndex];
       currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-      
-      // Update image for the currently active project
-      updateImageWithAnimation(currentProject);
+      updateImageWithAnimation(currentProject); // Update project images with animation
     }
   });
 
-  // Show title for the first project initially
-  createProjectTitle(projects[activeProjectIndex].title);
-  
   // Call this function when the project menu is opened
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
     disableOrbitControls();
     resetBookCover();
-
     gsap.to(camera.position, {
       ...projectsCameraPos,
       duration: 1.5,
@@ -778,8 +780,9 @@ function projectsMenuListener() {
   });
 }
 
-let activeProjectIndex = 0; // Track the currently active project index
-let projectTitleText; // Variable to hold the title text mesh
+// Active project index and project title text
+let activeProjectIndex = 0;
+let projectTitleText;
 
 // Function to create project group titles
 function createProjectTitle(title) {
@@ -809,40 +812,9 @@ function createProjectTitle(title) {
   });
 }
 
-// Update the title for the currently active project when scrolling
-document.addEventListener('wheel', function (e) {
-  const direction = e.deltaY > 0 ? 1 : -1;
+// Initialize the project menu listener
+projectsMenuListener();
 
-  // Change the active project index based on the scroll direction
-  activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-
-  // Update the title for the currently active project
-  createProjectTitle(projects[activeProjectIndex].title);
-
-  // Update the image index for the currently displayed project
-  const currentProject = projects[activeProjectIndex];
-  currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-  updateImageWithAnimation(currentProject); // Update project images with animation
-});
-
-// Mobile touch gesture handling
-document.addEventListener('touchend', function () {
-  const swipeDistance = touchEndX - touchStartX;
-  const direction = swipeDistance < 0 ? 1 : -1;
-
-  if (Math.abs(swipeDistance) > 30) {
-    // Change the active project index based on swipe direction
-    activeProjectIndex = (activeProjectIndex + direction + projects.length) % projects.length;
-
-    // Update the title for the currently active project
-    createProjectTitle(projects[activeProjectIndex].title);
-
-    // Update image index for the currently displayed project
-    const currentProject = projects[activeProjectIndex];
-    currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-    updateImageWithAnimation(currentProject); // Update project images with animation
-  }
-});
 
 
 
