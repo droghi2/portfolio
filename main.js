@@ -796,7 +796,7 @@ function createProjectTitle(title) {
 
     projectTitleText = new THREE.Mesh(titleGeo, textMaterials);
     projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
-    projectTitleText.position.set(0.8, 1.2, -1); // Position it above the second column
+    projectTitleText.position.set(0.8, 0.8, -1); // Position it above the second column
     scene.add(projectTitleText);
   });
 }
