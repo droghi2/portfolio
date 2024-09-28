@@ -638,7 +638,7 @@ function aboutMenuListener() {
 projects.forEach(project => project.imageIndex = 0);
 
 function projectsMenuListener() {
-  // create project planes with textures
+  // Create project planes with textures
   projects.forEach((project, i) => {
     const colIndex = i % 3;
     const rowIndex = Math.floor(i / 3);
@@ -669,28 +669,33 @@ function projectsMenuListener() {
   });
 
   // Reusable animation function for updating the texture and animating
-  function updateImageWithAnimation(project) {
-    // Load the new texture
+  function updateImageWithAnimation(project, index) {
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
-    // Animate the material opacity to 0 before changing the texture
+    // Animate the material opacity and Y-axis movement
     gsap.to(project.mesh.material, {
       opacity: 0,
       duration: 0.5,
       onComplete: () => {
-        // Once faded out, update the texture
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
 
-        // Animate back in with scaling and opacity
+        // Animate back in with Y-axis movement, scaling, and opacity
         gsap.to(project.mesh.material, {
           opacity: 1,
           duration: 0.5,
+          delay: index * 0.1, // Add delay for consecutive appearance
         });
         gsap.fromTo(
           project.mesh.scale,
           { x: 0.95, y: 0.95 },
-          { x: 1, y: 1, duration: 0.5 }
+          { x: 1, y: 1, duration: 0.5, delay: index * 0.1 }
+        );
+        // Animate movement from slightly below its final Y position
+        gsap.fromTo(
+          project.mesh.position,
+          { y: project.y - 0.2 }, // Start slightly below
+          { y: project.y, duration: 0.5, delay: index * 0.1 }
         );
       },
     });
@@ -700,9 +705,9 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
-    projects.forEach((project) => {
+    projects.forEach((project, i) => {
       project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-      updateImageWithAnimation(project); // Apply animation when changing the image
+      updateImageWithAnimation(project, i); // Apply animation with index-based delay
     });
   });
 
@@ -724,9 +729,9 @@ function projectsMenuListener() {
     const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
 
     if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      projects.forEach((project) => {
+      projects.forEach((project, i) => {
         project.imageIndex = (project.imageIndex + direction + project.images.length) % project.images.length;
-        updateImageWithAnimation(project); // Apply animation when swiping the image
+        updateImageWithAnimation(project, i); // Apply animation with index-based delay
       });
     }
   });
@@ -762,6 +767,7 @@ function projectsMenuListener() {
     });
   });
 }
+
 
 
 
