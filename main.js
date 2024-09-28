@@ -636,7 +636,10 @@ function aboutMenuListener() {
   });
 }
 
+
+// Initialize image index and active project index
 projects.forEach(project => project.imageIndex = 0);
+let activeProjectIndex = 0;
 
 function projectsMenuListener() {
   // Create project planes with textures
@@ -649,9 +652,8 @@ function projectsMenuListener() {
       color: 0xffffff,
       map: new THREE.TextureLoader().load(project.images[project.imageIndex]), // Load first image
       transparent: true,
-      opacity: 0.0,
+      opacity: 1, // Set opacity to 1 for visibility
     });
-    
     const projectPlane = new THREE.Mesh(geometry, material);
     projectPlane.name = 'project';
     projectPlane.userData = {
@@ -663,7 +665,6 @@ function projectsMenuListener() {
       1 - rowIndex * 0.5,
       -1.15
     );
-    projectPlane.scale.set(0, 0, 0);
 
     projects[i].mesh = projectPlane;
     projects[i].y = 1 - rowIndex * 0.5;
@@ -671,10 +672,10 @@ function projectsMenuListener() {
   });
 
   // Reusable animation function for updating the texture and animating
-  function updateImageWithAnimation(project, index) {
+  function updateImageWithAnimation(project) {
     const newTexture = new THREE.TextureLoader().load(project.images[project.imageIndex]);
 
-    // Animate the material opacity and Y-axis movement
+    // Animate the material opacity
     gsap.to(project.mesh.material, {
       opacity: 0,
       duration: 0.2,
@@ -682,24 +683,34 @@ function projectsMenuListener() {
         project.mesh.material.map = newTexture;
         project.mesh.material.needsUpdate = true;
 
-        // Animate back in with Y-axis movement, scaling, and opacity
+        // Animate back in
         gsap.to(project.mesh.material, {
           opacity: 1,
-          duration: 1.5,
-          delay: 0.5 + index * 0.1, // Add delay for consecutive appearance
+          duration: 0.5,
         });
-        gsap.fromTo(
-          project.mesh.scale,
-          { x: 0.95, y: 0.95 },
-          { x: 1, y: 1, duration: 0.5, delay: index * 0.1 }
-        );
-        // Animate movement from slightly below its final Y position
-        gsap.fromTo(
-          project.mesh.position,
-          { y: project.y - 0.2 }, // Start slightly below
-          { y: project.y, duration: 0.5, delay: index * 0.1 }
-        );
       },
+    });
+  }
+
+  // Function to show the project title
+  function createProjectTitle(title) {
+    // Remove existing title text if it exists
+    if (projectTitleText) {
+      scene.remove(projectTitleText);
+    }
+
+    const loader = new FontLoader();
+    loader.load('fonts/unione.json', function (font) {
+      const titleGeo = new TextGeometry(title, {
+        font: font,
+        size: 0.08,
+        height: 0.01,
+      });
+
+      projectTitleText = new THREE.Mesh(titleGeo, new THREE.MeshPhongMaterial({ color: 0x171f27 }));
+      projectTitleText.rotation.z = Math.PI * 0.5; // Rotate 90 degrees
+      projectTitleText.position.set(0.8, 0.5, -1); // Position it above
+      scene.add(projectTitleText);
     });
   }
 
@@ -707,90 +718,30 @@ function projectsMenuListener() {
   document.addEventListener('wheel', function (e) {
     const direction = e.deltaY > 0 ? 1 : -1;
 
+    // Update the image index only for the active project
     const currentProject = projects[activeProjectIndex];
     currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-    updateImageWithAnimation(currentProject, activeProjectIndex); // Update only the current project's image
+    updateImageWithAnimation(currentProject); // Update image with animation
   });
 
-  // Handle touch events (Mobile)
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  document.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX; // Get the X position where the touch started
-  });
-
-  document.addEventListener('touchmove', function (e) {
-    touchEndX = e.touches[0].clientX; // Get the X position as the touch moves
-  });
-
-  document.addEventListener('touchend', function () {
-    const swipeDistance = touchEndX - touchStartX;
-    const direction = swipeDistance < 0 ? 1 : -1; // Swipe left for next image, right for previous image
-
-    if (Math.abs(swipeDistance) > 30) { // Threshold to avoid accidental swipes
-      const currentProject = projects[activeProjectIndex];
-      currentProject.imageIndex = (currentProject.imageIndex + direction + currentProject.images.length) % currentProject.images.length;
-      updateImageWithAnimation(currentProject, activeProjectIndex); // Update only the current project's image
-    }
-  });
-
-  // Event listener for the project menu
+  // Handle project selection from the menu
   document.getElementById('projects-menu').addEventListener('click', function (e) {
     e.preventDefault();
-    disableOrbitControls();
-    resetBookCover();
-    gsap.to(camera.position, {
-      ...projectsCameraPos,
-      duration: 1.5,
-    });
-    gsap.to(camera.rotation, {
-      ...projectsCameraRot,
-      duration: 1.5,
-    });
-    gsap.delayedCall(1.5, enableCloseBtn);
+    activeProjectIndex = parseInt(e.target.dataset.projectIndex); // Assume buttons have data attributes for indices
+    const currentProject = projects[activeProjectIndex];
 
-    // Animate & show project items
-    projects.forEach((project, i) => {
-      project.mesh.scale.set(1, 1, 1);
-      gsap.to(project.mesh.material, {
-        opacity: 1,
-        duration: 1.5,
-        delay: 1.5 + i * 0.1,
-      });
-      gsap.to(project.mesh.position, {
-        y: project.y + 0.05,
-        duration: 1,
-        delay: 1.5 + i * 0.1,
-      });
-    });
+    // Show title for the currently selected project
+    createProjectTitle(currentProject.title);
+    
+    // Update the displayed image
+    updateImageWithAnimation(currentProject);
   });
+
+  // Similar handling for mobile touch events can be added...
 }
 
-// Variable to keep track of the currently active project index
-let activeProjectIndex = 0;
-
-// Call this function when the project menu is opened
-document.getElementById('projects-menu').addEventListener('click', function (e) {
-  e.preventDefault();
-  disableOrbitControls();
-  resetBookCover();
-
-  gsap.to(camera.position, {
-    ...projectsCameraPos,
-    duration: 1.5,
-  });
-  gsap.to(camera.rotation, {
-    ...projectsCameraRot,
-    duration: 1.5,
-  });
-
-  gsap.delayedCall(1.5, enableCloseBtn);
-
-  // Show the current project's images initially
-  const currentProject = projects[activeProjectIndex];
-  createProjectTitle(currentProject.title);
-});
+// Call projectsMenuListener to initialize everything
+projectsMenuListener();
 
 
 
